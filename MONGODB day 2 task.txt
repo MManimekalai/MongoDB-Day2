@@ -1,70 +1,87 @@
-// 1.Creating a new database named zen
-//use zen;
+// 1. Creating a new database named "zen"
+// use zen;
 
-// 2.users
+// 2. Create a "users" collection
 db.createCollection("users")
+// Example Output: { "ok" : 1 }
 
-// 3.codekata
+// 3. Create a "codekata" collection
 db.createCollection("codekata")
+// Example Output: { "ok" : 1 }
 
-// 4.attendance
+// 4. Create an "attendance" collection
 db.createCollection("attendance")
+// Example Output: { "ok" : 1 }
 
-// 5.topics
+// 5. Create a "topics" collection
 db.createCollection("topics")
+// Example Output: { "ok" : 1 }
 
-// 6.tasks
+// 6. Create a "tasks" collection
 db.createCollection("tasks")
+// Example Output: { "ok" : 1 }
 
-// 7.company_drives
+// 7. Create a "company_drives" collection
 db.createCollection("company_drives")
+// Example Output: { "ok" : 1 }
 
-// 8.mentors
+// 8. Create a "mentors" collection
 db.createCollection("mentors")
+// Example Output: { "ok" : 1 }
 
-// 9.Find all the topics and tasks which are thought in the month of October
-
+// 9. Find all the topics and tasks which are taught in the month of October
 db.tasks.aggregate([
-    {$match:{month:"October"}},
-    {$group:{
-        topic:'$topics',
-        task:'$tasks'
-    }}
+  { $match: { month: "October" } },
+  { $group: { topic: '$topics', task: '$tasks' } }
 ])
+// Example Output:
+// { "topic": "MongoDB", "task": "Query Examples" }
 
-// 10.Find all the company drives which appeared between 15 oct-2020 and 31-oct-2020
+// 10. Find all the company drives which appeared between 15th October 2020 and 31st October 2020
+db.company_drives.find({
+  appeared: {
+    $gt: new Date("2020-10-15"),
+    $lt: new Date("2020-10-31")
+  }
+})
+// Example Output:
+// { "company_drive": "XYZ Inc", "appeared_date": "2020-10-20" }
 
-db.company_drives.
-find({appeared:{$gt: new Date("15 oct-2020"),
-$lt: new Date("31-oct-2020")}})
-
-// 11.Find all the company drives and students who are appeared for the placement.
-
+// 11. Find all the company drives and students who appeared for the placement
 db.tasks.aggregate([
-    {$match:{attendance:"present"}},
-    {$group:{
-        company:'$company_drives',
-        student:'$users'
-    }}
+  { $match: { attendance: "present" } },
+  { $group: { company: '$company_drives', student: '$users' } }
 ])
+// Example Output:
+// { "company_drive": "ABC Corp", "student": "John Doe" }
 
-// 12.Find the number of problems solved by the user in codekata
+// 12. Find the number of problems solved by each user in codekata
+db.codekata.find().forEach(function (prob) {
+  print("Name", prob.users, "No.of problems", prob.solved)
+})
+// Example Output:
+// { "Name": "Alice", "No. of problems": 25 }
+// { "Name": "Bob", "No. of problems": 30 }
 
-db.codekata.find().
-forEach(function(prob)
-{print("Name",prob.users,"No.of problems",pob.solved)})
+// 13. Find all the mentors with more than 15 mentees
+db.mentors.find({ mentee_count: { $gt: 15 } })
+// Example Output:
+// { "mentor_name": "Mentor1", "mentee_count": 20 }
+// { "mentor_name": "Mentor2", "mentee_count": 18 }
 
-// 13.Find all the mentors with who has the mentee's count more than 15
-
-db.mentors.find({mentee_count:{$gt:15}})
-
-// 14.Find the number of users who are absent and task is not submitted  
-//between 15 oct-2020 and 31-oct-2020
-
-db.users.
-find({$and:[
-    {attendance:"absent"},
-    {task:"not submitted"},
-    {date:{$gt: new Date("15 oct-2020"),
-    $lt: new Date("31-oct-2020")}}
-]});
+// 14. Find the number of users who were absent and didn't submit tasks between 15th October 2020 and 31st October 2020
+db.users.find({
+  $and: [
+    { attendance: "absent" },
+    { task_status: "not submitted" },
+    {
+      date: {
+        $gt: new Date("2020-10-15"),
+        $lt: new Date("2020-10-31")
+      }
+    }
+  ]
+})
+// Example Output:
+// { "user": "User1", "attendance": "absent", "task_status": "not submitted", "date": "2020-10-20" }
+// { "user": "User2", "attendance": "absent", "task_status": "not submitted", "date": "2020-10-25" }
